@@ -1,0 +1,4 @@
+[submodule "SAMP-API"]
+	path = SAMP-API
+	url = https://github.com/BlastHackNet/SAMP-API.git
+	shallow = true
