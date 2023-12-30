@@ -1,14 +1,17 @@
 #pragma once
 #include "pch.h"
-#include "CFrameSyncPrecise.h"
+#include "ModernFrameLimiter.h"
 
 // ya que queremos hookear el device, tenemos que hacer una clase q sea similar al device, heredamos la clase base
-class d3d9_device_proxy : public IDirect3DDevice9
+
+class d3d9_device_proxy_modern : public IDirect3DDevice9
 {
 public:
 	// aca vamos a pedir un ptr el cual apuntara al device q el juego usa originalmente
-	d3d9_device_proxy(IDirect3DDevice9& dev, CFrameSyncPrecise& frameLimiter);
-	virtual ~d3d9_device_proxy();
+	d3d9_device_proxy_modern(IDirect3DDevice9& dev, u64 targetFramerate)
+		: m_pDirect3DDevice9{ dev }
+		, frameLimiter(targetFramerate) {}
+	virtual ~d3d9_device_proxy_modern() {}
 
 	// todos estos metodos son los que el idirect3d9 implementa, lo hacemos con stdmethod pq asi podemos copiarlo
 	// directamente del a implementacion original
@@ -135,9 +138,10 @@ public:
 	STDMETHOD(DrawTriPatch)(UINT Handle, CONST float* pNumSegs, CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	STDMETHOD(DeletePatch)(UINT Handle);
 	STDMETHOD(CreateQuery)(D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery);
+	void UpdateFrameLimit(s64 targetFramerate);
 
 private:
 	// hmm.---- pensandolo mejor :v
 	IDirect3DDevice9& m_pDirect3DDevice9;
-	CFrameSyncPrecise& frameLimiter;
+	ModernFrameLimiter frameLimiter;
 };

@@ -1,29 +1,27 @@
 #include "pch.h"
-#include "d3d9_proxy.h"
 #include "memory.h"
+#include "d3d9_hook.h"
+#include "renderware_hook.h"
+#include "cchat_unofficial.h"
 #include "util.h"
 
 using namespace plugin;
 
-#define SA_DEVICE_ADDRESS 0xC97C28
 #define CFGFILE_PATH ".\\PreciseFramerateLimiter.cfg"
 #define DEFAULT_FRAMERATE 60
 #define MINIMUM_FRAMERATE 20
 #define PREFIX_COLOR 0x88AA62FF
-#define CHAT_COLOR "{88AA62}"
 
 class PreciseFramerateLimiter
 {
-    static inline DWORD samp_pointer = NULL;
-    static inline CFrameSyncPrecise* frameLimiter = nullptr;
-    static inline uint8_t sampVersion = 0;
+    static inline u8 sampVersion = 0;
 
     static void RemoveSampLimits()
     {
-        //enable_console();
-        samp_pointer = sampapi::GetBase();
+        auto samp_pointer = sampapi::GetBase();
         if (!samp_pointer)
         {
+            Events::initRwEvent -= RemoveSampLimits;
             return;
         }
 
@@ -47,6 +45,9 @@ class PreciseFramerateLimiter
             break;
         case 0xA2686:
             sampVersion = 0x5;
+            break;
+        case 0xA23F6:
+            sampVersion = 0xD1;
             break;
         }
         if (sampProcessFrameLimiterCaller - 0x3 && VirtualProtect((void*)sampProcessFrameLimiterCaller, 15, PAGE_EXECUTE_READWRITE, &old_prot))
@@ -82,6 +83,9 @@ class PreciseFramerateLimiter
         case 0x5:
             offset = 0x688D0;
             break;
+        case 0xD1:
+            offset = 0x68310;
+            break;
         }
         if (offset)
         {
@@ -93,15 +97,9 @@ class PreciseFramerateLimiter
 
     static void ReplaceD3D9Device()
     {
-        unsigned long framerate = ReadFramerateLimit();
-        frameLimiter = new CFrameSyncPrecise(framerate);
+        s64 framerate = ReadFramerateLimit();
 
-        // primero obtenemos el puntero al device del juego y lo alojamos en dev
-        IDirect3DDevice9* dev = *(IDirect3DDevice9**)SA_DEVICE_ADDRESS;
-
-        // reemplazamos el ptr con una instancia de device proxy, a la cual tmb le pasaremos el valor original
-        // del device para que sepa adonde hacer las calls originales
-        *(IDirect3DDevice9**)SA_DEVICE_ADDRESS = new d3d9_device_proxy(*dev, *frameLimiter);
+        d3d9_hook::ReplaceD3D9Device(framerate);
 
         Events::drawingEvent -= ReplaceD3D9Device;
     }
@@ -114,73 +112,74 @@ class PreciseFramerateLimiter
         {
             return;
         }
-        unsigned long framerate = MINIMUM_FRAMERATE - 1;
+        s64 framerate = MINIMUM_FRAMERATE - 1;
         try
         {
             std::string _str(str);
-            framerate = std::stol(_str);
+            framerate = std::stoll(_str);
         }
         catch (std::exception const&)
         {
         }
-        if (framerate < MINIMUM_FRAMERATE)
+        if (framerate && framerate < MINIMUM_FRAMERATE)
         {
             switch (sampVersion)
             {
             case 0x1:
-                sampapi::v037r1::RefChat()->AddChatMessage(nullptr, PREFIX_COLOR, CHAT_COLOR"Frame Limiter: valid amounts are 20+");
+                sampapi::v037r1::RefChat()->AddMessage(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
                 break;
             case 0x2:
-            {
-                //unknown address for CChat object
-                //((void(__thiscall*)(void*, const char*, D3DCOLOR, const char*))(samp_pointer + 0x64D30))((void*)0x26EB80??, nullptr, PREFIX_COLOR, CHAT_COLOR"Frame Limiter: valid amounts are 20+");
-            }
-            break;
+                cchat_unofficial::AddMessageR2(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
+                break;
             case 0x3:
-                sampapi::v037r3::RefChat()->AddChatMessage(nullptr, PREFIX_COLOR, CHAT_COLOR"Frame Limiter: valid amounts are 20+");
+                sampapi::v037r3::RefChat()->AddMessage(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
                 break;
             case 0x4:
-            {
-                //unknown address for CChat object
-                //((void(__thiscall*)(void*, const char*, D3DCOLOR, const char*))(samp_pointer + 0x64D30))((void*)0x26EB80??, nullptr, PREFIX_COLOR, CHAT_COLOR"Frame Limiter: valid amounts are 20+");
-            }
-            break;
+                cchat_unofficial::AddMessageR4(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
+                break;
             case 0x5:
-                sampapi::v037r5::RefChat()->AddChatMessage(nullptr, PREFIX_COLOR, CHAT_COLOR"Frame Limiter: valid amounts are 20+");
+                sampapi::v037r5::RefChat()->AddMessage(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
+                break;
+            case 0xD1:
+                cchat_unofficial::AddMessageDL(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
                 break;
             }
             return;
         }
-        std::string message(CHAT_COLOR"Frame limiter: " + std::to_string(framerate));
+        std::string message("Frame limiter: " + (framerate ? (std::to_string(framerate)) : "unlimited"));
         switch (sampVersion)
         {
         case 0x1:
-            sampapi::v037r1::RefChat()->AddChatMessage(nullptr, PREFIX_COLOR, message.c_str());
+            sampapi::v037r1::RefChat()->AddMessage(PREFIX_COLOR, message.c_str());
             break;
         case 0x2:
-        {
-            //unknown address for CChat object
-            //((void(__thiscall*)(void*, const char*, D3DCOLOR, const char*))(samp_pointer + 0x64D30))((void*)0x26EB80??, nullptr, PREFIX_COLOR, message.c_str());
-        }
+            cchat_unofficial::AddMessageR2(PREFIX_COLOR, message.c_str());
             break;
         case 0x3:
-            sampapi::v037r3::RefChat()->AddChatMessage(nullptr, PREFIX_COLOR, message.c_str());
+            sampapi::v037r3::RefChat()->AddMessage(PREFIX_COLOR, message.c_str());
             break;
         case 0x4:
-        {
-            //unknown address for CChat object
-            //((void(__thiscall*)(void*, const char*, D3DCOLOR, const char*))(samp_pointer + 0x64D30))((void*)0x26EB80??, nullptr, PREFIX_COLOR, message.c_str());
-        }
+            cchat_unofficial::AddMessageR4(PREFIX_COLOR, message.c_str());
             break;
         case 0x5:
-            sampapi::v037r5::RefChat()->AddChatMessage(nullptr, PREFIX_COLOR, message.c_str());
+            sampapi::v037r5::RefChat()->AddMessage(PREFIX_COLOR, message.c_str());
+            break;
+        case 0xD1:
+            cchat_unofficial::AddMessageDL(PREFIX_COLOR, message.c_str());
             break;
         }
-        frameLimiter->UpdateFramerateLimit(static_cast<double>(framerate));
+
+        if (!framerate)
+        {
+            d3d9_hook::UnlimitFramerate();
+            WriteFramerateLimit(framerate);
+            return;
+        }
+        d3d9_hook::ChangeFramerate(framerate);
         WriteFramerateLimit(framerate);
     }
 
-    static unsigned long ReadFramerateLimit()
+    static s64 ReadFramerateLimit()
     {
         std::ifstream cfgFile(CFGFILE_PATH);
         if (cfgFile)
@@ -189,10 +188,14 @@ class PreciseFramerateLimiter
             std::getline(cfgFile, line);
             cfgFile.close();
 
-            long framerate = MINIMUM_FRAMERATE - 1;
+            s64 framerate = MINIMUM_FRAMERATE - 1;
             try
             {
-                framerate = std::stol(line);
+                framerate = std::stoll(line);
+                if (!framerate)
+                {
+                    return 0;
+                }
             }
             catch (std::exception const&)
             {
@@ -202,13 +205,13 @@ class PreciseFramerateLimiter
                 framerate = DEFAULT_FRAMERATE;
                 WriteFramerateLimit(DEFAULT_FRAMERATE);
             }
-            return static_cast<unsigned long>(framerate);
+            return framerate;
         }
         WriteFramerateLimit(DEFAULT_FRAMERATE);
         return DEFAULT_FRAMERATE;
     }
 
-    static void WriteFramerateLimit(unsigned long value)
+    static void WriteFramerateLimit(s64 value)
     {
         std::ofstream cfgFile(CFGFILE_PATH, std::ios::out | std::ios::trunc);
         if (cfgFile)
@@ -221,6 +224,8 @@ class PreciseFramerateLimiter
 public:
     PreciseFramerateLimiter()
     {
+        //enable_console();
+        renderware_hook::ReplaceRwSetRefreshRate();
         Events::drawingEvent += ReplaceD3D9Device;
         Events::initRwEvent += RemoveSampLimits;
     };

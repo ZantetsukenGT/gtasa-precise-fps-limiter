@@ -27,10 +27,40 @@
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="d3d9_proxy.h">
+    <ClInclude Include="d3d9_proxy_legacy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CFrameSyncPrecise.h">
+    <ClInclude Include="LegacyFrameLimiter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModernFrameLimiter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d9_proxy_modern.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wall_clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="timer_resolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="steady_clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderware_hook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cchat_unofficial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d9_hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,7 +74,22 @@
     <ClCompile Include="memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="d3d9_proxy.cpp">
+    <ClCompile Include="d3d9_proxy_legacy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d9_proxy_modern.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="steady_clock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wall_clock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="timer_resolution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
