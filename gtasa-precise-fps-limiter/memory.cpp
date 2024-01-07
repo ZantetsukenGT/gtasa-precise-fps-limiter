@@ -23,6 +23,35 @@ unsigned long mem_find_pattern(const char* pattern, const char* mask, unsigned l
 	return 0;
 }
 
+unsigned long mem_find_pattern_backwards_starting_at(const char* pattern, const char* mask, unsigned long base_address, unsigned long start_address)
+{
+	unsigned long pattern_len = (unsigned long)strlen(mask);
+
+	unsigned long start_index = start_address - base_address - pattern_len + 1;
+
+	for (unsigned long i = start_index; i >= 0; --i)
+	{
+		bool found = true;
+
+		for (unsigned long j = 0; j < pattern_len; ++j)
+		{
+			found &= mask[j] == '?' || pattern[j] == *(char*)(base_address + i + j);
+		}
+
+		if (found)
+		{
+			return base_address + i;
+		}
+		
+		if (i == 0)
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
 void _patch(void* addr, void* data, int size)
 {
 	unsigned long prot[2]{};

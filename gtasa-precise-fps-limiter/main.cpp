@@ -14,8 +14,6 @@ using namespace plugin;
 
 class PreciseFramerateLimiter
 {
-    static inline u8 sampVersion = 0;
-
     static void RemoveSampLimits()
     {
         auto samp_pointer = sampapi::GetBase();
@@ -28,28 +26,6 @@ class PreciseFramerateLimiter
         DWORD old_prot;
 
         unsigned long sampProcessFrameLimiterCaller = mem_find_pattern("\x89\x65\xE8\x8B\x0D\xAC\xEB\x26\x10\x85\xC9\x74\x05\xE8", "xxxxx????xxxxx", samp_pointer, 1204224) + 0x3;
-        switch (sampProcessFrameLimiterCaller - samp_pointer)
-        {
-        case 0x9D9C6:
-            sampVersion = 0x1;
-            break;
-        case 0x9DAF6:
-            sampVersion = 0x2;
-            break;
-        case 0xA1F16:
-        case 0xA1F56:
-            sampVersion = 0x3;
-            break;
-        case 0xA2696:
-            sampVersion = 0x4;
-            break;
-        case 0xA2686:
-            sampVersion = 0x5;
-            break;
-        case 0xA23F6:
-            sampVersion = 0xD1;
-            break;
-        }
         if (sampProcessFrameLimiterCaller - 0x3 && VirtualProtect((void*)sampProcessFrameLimiterCaller, 15, PAGE_EXECUTE_READWRITE, &old_prot))
         {
             DWORD new_prot = old_prot;
@@ -65,33 +41,36 @@ class PreciseFramerateLimiter
             VirtualProtect((void*)hardcodedSleep1, 1, new_prot, &old_prot);
         }
 
-        DWORD offset = 0;
-        switch (sampVersion)
+        unsigned long anAddressWithinFpslimitCommand = mem_find_pattern("\x83\xC4\x04\x83\xFE\x14\x72\x3F\x83\xFE\x5A\x77\x3A", "xxxxxxx?xxxx?", samp_pointer, 1204224);
+        if (anAddressWithinFpslimitCommand)
         {
-        case 0x1:
-            offset = 0x64C60;
-            break;
-        case 0x2:
-            offset = 0x64D30;
-            break;
-        case 0x3:
-            offset = 0x68160;
-            break;
-        case 0x4:
-            offset = 0x68890;
-            break;
-        case 0x5:
-            offset = 0x688D0;
-            break;
-        case 0xD1:
-            offset = 0x68310;
-            break;
-        }
-        if (offset)
-        {
-            DetourFunction(PBYTE(samp_pointer + offset), (PBYTE)fpslimit_hook);
-        }
+            unsigned long fpslimitCommand = mem_find_pattern_backwards_starting_at("\x51\x56\x8B\x74\x24\x0C\x8B\xC6\x8D\x50\x01\xEB", "xxxxxxxxxxxx", samp_pointer, anAddressWithinFpslimitCommand);
+            if (fpslimitCommand)
+            {
+                DetourFunction((PBYTE)fpslimitCommand, (PBYTE)fpslimit_hook);
+            }
 
+            unsigned long cchatRefAddressStart = mem_find_pattern("\x56\x68\xF0\x9E\x0E\x10\x50", "xx????x", anAddressWithinFpslimitCommand, 1204224) - 0x1;
+            if (cchatRefAddressStart + 0x1)
+            {
+                DWORD cchatRefAddress = DWORD(*(unsigned char*)cchatRefAddressStart) << 24;
+                cchatRefAddress += DWORD(*(unsigned char*)(cchatRefAddressStart - 1)) << 16;
+                cchatRefAddress += DWORD(*(unsigned char*)(cchatRefAddressStart - 2)) << 8;
+                cchatRefAddress += DWORD(*(unsigned char*)(cchatRefAddressStart - 3));
+                cchat_unofficial::SetCChatRef(cchatRefAddress);
+
+                unsigned long anAddressWithinAddMessage = mem_find_pattern("\x2B\xC2\x3D\x90\x00\x00\x00\x77", "xxxxxxxx", samp_pointer, 1204224);
+                if (anAddressWithinAddMessage)
+                {
+                    unsigned long addMessageAddress = mem_find_pattern_backwards_starting_at("\x56", "x", samp_pointer, anAddressWithinAddMessage);
+                    if (addMessageAddress)
+                    {
+                        cchat_unofficial::SetAddMessageAddress(addMessageAddress);
+                    }
+                }
+            }
+        }
+        
         Events::initRwEvent -= RemoveSampLimits;
     }
 
@@ -123,51 +102,11 @@ class PreciseFramerateLimiter
         }
         if (framerate && framerate < MINIMUM_FRAMERATE)
         {
-            switch (sampVersion)
-            {
-            case 0x1:
-                sampapi::v037r1::RefChat()->AddMessage(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
-                break;
-            case 0x2:
-                cchat_unofficial::AddMessageR2(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
-                break;
-            case 0x3:
-                sampapi::v037r3::RefChat()->AddMessage(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
-                break;
-            case 0x4:
-                cchat_unofficial::AddMessageR4(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
-                break;
-            case 0x5:
-                sampapi::v037r5::RefChat()->AddMessage(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
-                break;
-            case 0xD1:
-                cchat_unofficial::AddMessageDL(PREFIX_COLOR, "Frame Limiter: valid amounts are 20+ or 0 for unlimited");
-                break;
-            }
+            cchat_unofficial::AddMessage(PREFIX_COLOR, "Framerate limiter: valid amounts are 20+ or 0 for unlimited");
             return;
         }
-        std::string message("Frame limiter: " + (framerate ? (std::to_string(framerate)) : "unlimited"));
-        switch (sampVersion)
-        {
-        case 0x1:
-            sampapi::v037r1::RefChat()->AddMessage(PREFIX_COLOR, message.c_str());
-            break;
-        case 0x2:
-            cchat_unofficial::AddMessageR2(PREFIX_COLOR, message.c_str());
-            break;
-        case 0x3:
-            sampapi::v037r3::RefChat()->AddMessage(PREFIX_COLOR, message.c_str());
-            break;
-        case 0x4:
-            cchat_unofficial::AddMessageR4(PREFIX_COLOR, message.c_str());
-            break;
-        case 0x5:
-            sampapi::v037r5::RefChat()->AddMessage(PREFIX_COLOR, message.c_str());
-            break;
-        case 0xD1:
-            cchat_unofficial::AddMessageDL(PREFIX_COLOR, message.c_str());
-            break;
-        }
+        std::string message("Framerate limiter: " + (framerate ? (std::to_string(framerate)) : "unlimited"));
+        cchat_unofficial::AddMessage(PREFIX_COLOR, message.c_str());
 
         if (!framerate)
         {
