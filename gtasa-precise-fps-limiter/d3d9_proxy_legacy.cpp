@@ -214,9 +214,7 @@ HRESULT d3d9_device_proxy_legacy::BeginScene(void)
 HRESULT d3d9_device_proxy_legacy::EndScene(void)
 {
 	auto hr = m_pDirect3DDevice9.EndScene();
-	if (frameLimiter.ShouldWait())
-		frameLimiter.Wait();
-	frameLimiter.SetFrameStart();
+	frameLimiter.Wait();
 	return hr;
 }
 

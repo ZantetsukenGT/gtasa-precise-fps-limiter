@@ -43,9 +43,7 @@ namespace d3d9_hook
         auto hr = oEndScene(this_);
         if (enableFramerateLimit)
         {
-            if (legacyLimiter.ShouldWait())
-                legacyLimiter.Wait();
-            legacyLimiter.SetFrameStart();
+            legacyLimiter.Wait();
         }
         return hr;
     }
