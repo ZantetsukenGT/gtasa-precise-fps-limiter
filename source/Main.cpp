@@ -18,7 +18,7 @@
 using namespace plugin;
 
 class PreciseFramerateLimiter {
-    static inline constexpr D3DCOLOR PREFIX_COLOR = 0x118899FF;//0x88AA62FF;
+    static inline constexpr D3DCOLOR PREFIX_COLOR = 0x88AA62FF;
     static inline constexpr size_t   GTASA_ID3D9DEVICE_ADDRESS = 0xC97C28;
 
     static inline int                g_FramerateValue = 144;
@@ -49,13 +49,13 @@ class PreciseFramerateLimiter {
         }
         catch (std::exception const&)
         {
-            cchat_unofficial::AddMessage(PREFIX_COLOR, "Framerate limiter: valid amounts are 20+ or 0 for unlimited");
+            cchat_unofficial::AddMessage(PREFIX_COLOR, "Framerate limiter v2: valid amounts are 20+ or 0 for unlimited");
             return;
         }
 
         if (framerate == Config::UNLIMITED_FRAMERATE)
         {
-            cchat_unofficial::AddMessage(PREFIX_COLOR, "Framerate limiter: unlimited");
+            cchat_unofficial::AddMessage(PREFIX_COLOR, "Framerate limiter v2: unlimited");
             Config::WriteFramerateLimit(framerate);
             SetFrameRate(framerate);
             return;
@@ -63,11 +63,11 @@ class PreciseFramerateLimiter {
 
         if (framerate < Config::MINIMUM_FRAMERATE)
         {
-            cchat_unofficial::AddMessage(PREFIX_COLOR, "Framerate limiter: valid amounts are 20+ or 0 for unlimited");
+            cchat_unofficial::AddMessage(PREFIX_COLOR, "Framerate limiter v2: valid amounts are 20+ or 0 for unlimited");
             return;
         }
 
-        std::string message("Framerate limiter: " + std::to_string(framerate));
+        std::string message("Framerate limiter v2: " + std::to_string(framerate));
         cchat_unofficial::AddMessage(PREFIX_COLOR, message.c_str());
         Config::WriteFramerateLimit(framerate);
         SetFrameRate(framerate);
