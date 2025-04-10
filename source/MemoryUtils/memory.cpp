@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "memory.h"
 
 unsigned long mem_find_pattern(const char* pattern, const char* mask, unsigned long base_address, unsigned long size_of_image)

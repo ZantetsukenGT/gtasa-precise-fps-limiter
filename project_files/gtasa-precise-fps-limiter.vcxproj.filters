@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\source\Main.cpp" />
+    <ClCompile Include="..\source\MemoryUtils\memory.cpp">
+      <Filter>MemoryUtils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SAMP">
+      <UniqueIdentifier>{9a568da6-0f98-495d-9b54-fdbf9cc9e951}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryUtils">
+      <UniqueIdentifier>{914c9dea-33bf-440f-b040-88951e542328}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NtSleep">
+      <UniqueIdentifier>{d1a2d3e5-b719-4799-a79e-354d5db137ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Detours">
+      <UniqueIdentifier>{c7404d9a-85ed-4528-a9e1-1387a54893be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystem">
+      <UniqueIdentifier>{1d6dce7f-f679-48b9-8793-151785debe3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RenderWare">
+      <UniqueIdentifier>{42ffa2af-7cca-4a6b-95b6-d13b28577482}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\source\FileSystem\Config.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\FileSystem\Logging.h">
+      <Filter>FileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\Detours\detours.h">
+      <Filter>Detours</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\SAMP\samp_hook.h">
+      <Filter>SAMP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\SAMP\cchat_unofficial.h">
+      <Filter>SAMP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\MemoryUtils\memory.h">
+      <Filter>MemoryUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\RenderWare\renderware_hook.h">
+      <Filter>RenderWare</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\NtSleep\LegacyFrameLimiter.h">
+      <Filter>NtSleep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\NtSleep\HighQoS.h">
+      <Filter>NtSleep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\NtSleep\common_types.h">
+      <Filter>NtSleep</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

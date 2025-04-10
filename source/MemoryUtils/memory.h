@@ -1,10 +1,16 @@
 #pragma once
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <Windows.h>
+
 #define patch(a, v, s) _patch((void*)(a), (void*)(v), (s))
 #define nop(a, s) _nop((void*)(a), (s))
 
 unsigned long mem_find_pattern(const char* pattern, const char* mask, unsigned long base_address, unsigned long size_of_image);
-unsigned long mem_find_pattern_backwards_starting_at(const char* pattern, const char* mask, unsigned long base_address, unsigned long size_of_image);
+unsigned long mem_find_pattern_backwards_starting_at(const char* pattern, const char* mask, unsigned long base_address, unsigned long start_address);
 void _patch(void*, void*, int);
 void _nop(void*, int);
 bool check(void*, unsigned char, bool);

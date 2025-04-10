@@ -1,5 +1,13 @@
 #pragma once
-#include "pch.h"
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <Windows.h>
+#include <utility>
+
+#include "NtSleep/common_types.h"
 
 class LegacyFrameLimiter
 {
@@ -59,12 +67,12 @@ public:
                 QueryPerformanceCounter(&currentCounter);
                 ticksLeft = (s32)(nextCounter.QuadPart - currentCounter.QuadPart);
             }
-            s32 accumulatedError = max(negative_targetTicksToWait, ticksLeft);
+            s32 accumulatedError = std::max(negative_targetTicksToWait, ticksLeft);
             nextCounter_.QuadPart = currentCounter.QuadPart + (s64)(targetTicksToWait + accumulatedError);
         }
         else
         {
-            s64 accumulatedError = max((s64)negative_targetTicksToWait, ticksLeft64);
+            s64 accumulatedError = std::max((s64)negative_targetTicksToWait, ticksLeft64);
             nextCounter_.QuadPart = currentCounter.QuadPart + targetTicksToWait + accumulatedError;
         }
     }
