@@ -86,7 +86,6 @@ namespace samp_hook
 
     static void RemoveSampLimits()
     {
-        GetBase();
         if (!baseAddress)
         {
             return;
