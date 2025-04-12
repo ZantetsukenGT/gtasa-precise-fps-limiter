@@ -91,7 +91,7 @@ public:
         renderware_hook::ReplaceRwSetRefreshRate();
 
         Events::initRwEvent += [] {
-            g_FramerateValue = Config::ReadFramerateLimit();
+            SetFrameRate(Config::ReadFramerateLimit());
 
             size_t sampBaseAddress = samp_hook::GetBase();
             if (sampBaseAddress)
