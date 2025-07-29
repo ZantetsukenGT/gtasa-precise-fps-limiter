@@ -25,15 +25,6 @@ class PreciseFramerateLimiter {
 
     static inline LegacyFrameLimiter legacyFrameLimiter{ g_FramerateValue };
 
-    static void SetFrameRate(int framerate)
-    {
-        g_FramerateValue = framerate;
-
-        if (framerate) {
-            legacyFrameLimiter.UpdateFramerateLimit(framerate);
-        }
-    }
-
     static void WINAPIV newFpsLimitCommand(const char* str)
     {
         auto len = strlen(str);
@@ -117,4 +108,17 @@ public:
             }
         };
 	};
+
+    static void SetFrameRate(int framerate)
+    {
+        g_FramerateValue = framerate;
+
+        if (framerate) {
+            legacyFrameLimiter.UpdateFramerateLimit(framerate);
+        }
+    }
 } PreciseFramerateLimiter;
+
+extern "C" __declspec(dllexport) void __cdecl PreciseFramerateLimiter_SetFrameRate(int framerate) {
+    PreciseFramerateLimiter::SetFrameRate(framerate);
+}
