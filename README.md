@@ -17,4 +17,4 @@ git clone https://github.com/ZantetsukenGT/gtasa-precise-fps-limiter.git
 
 # Building
 
-Open the main .sln file from the `project_files/` folder, click compile, enjoy.
+Open the main .sln file from the `project_files/` folder, click compile, check the `output/` folder, enjoy.
