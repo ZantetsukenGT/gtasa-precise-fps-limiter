@@ -3,26 +3,18 @@
 # Clone
 
 ```bash
-git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/ZantetsukenGT/gtasa-precise-fps-limiter.git
+git clone https://github.com/ZantetsukenGT/gtasa-precise-fps-limiter.git
 
 ```
 
 # Requirements
 
-# plugin-sdk
+## Visual Studio 2022 or greater
+
+## plugin-sdk
 
 ### [https://github.com/DK22Pac/plugin-sdk](https://github.com/DK22Pac/plugin-sdk)
 
-# SAMP-API
+# Building
 
-```bash
-cd SAMP-API
-mkdir out
-cd out
-cmake .. -A Win32
-
-```
-
-Open SAMP-API's newly generated .sln file and build the solution in the `Release` configuration.
-
-Open the main .sln file, enjoy.
+Open the main .sln file from the `project_files/` folder, click compile, enjoy.
